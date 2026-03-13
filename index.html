@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -162,7 +162,7 @@
     <div class="warning-box flicker">
         <h1>ENTITY ARCHIVE DATABASE</h1>
         <p style="letter-spacing: 2px; margin-bottom: 10px; font-weight: bold; color: var(--accent-red);">[ UNAUTHORIZED ACCESS DETECTED ]</p>
-        <p style="font-size: 0.8rem; color: var(--lab-text-muted);">Sie greifen auf einen geschützten biologischen Archiv-Server zu. Jede Interaktion wird aufgezeichnet. Bei Fehlverhalten wird das Sicherheitsprotokoll Alpha eingeleitet.</p>
+        <p style="font-size: 0.8rem; color: var(--lab-text-muted);">You are accessing a restricted biological archive server. All activity is being monitored and logged. Security protocol Alpha will be initiated in case of unauthorized behavior.</p>
     </div>
     <button class="enter-btn" onclick="initArchive()">ENTER ARCHIVE</button>
 </div>
@@ -181,7 +181,7 @@
 
     <div class="control-panel">
         <div class="search-container">
-            <input type="text" id="search-input" placeholder="NACH ENTITÄTEN SUCHEN..." oninput="filterEntities()">
+            <input type="text" id="search-input" placeholder="SEARCH FOR ENTITIES..." oninput="filterEntities()">
         </div>
         <div class="filter-bar" id="filter-bar">
             <button class="filter-btn active" onclick="setFilter('ALL', this)">ALL</button>
@@ -274,19 +274,19 @@
 
 <script>
     const entities = [
-        { id: "01", name: "THE WATCHER", cat: "Visual / Ocular", status: "Active Observation", threat: "Medium", tags: ["ACTIVE"], loc: "Sector A Surveillance Wing", desc: "Überwachungsobjekt mit abnormaler Augenvervielfältigung auf der Schädeloberfläche. Es bewegt sich nicht, solange es beobachtet wird.", notes: "Testpersonen berichteten von einem persistenten Gefühl, beobachtet zu werden. Blinken löst minimale Positionsveränderungen aus.", trigger: "Lack of direct observation", hazard: "Class-2 Ocular Shift", event: "Position shifted 3m during power failure." },
-        { id: "02", name: "THE SMILE UNIT", cat: "Facial Mimicry", status: "Cognitive Hazard", threat: "Medium", tags: ["ACTIVE", "MIMICRY"], loc: "Behavioral Testing Unit", desc: "Mimikry menschlicher Gesichtsausdrücke. Die Qualität der Nachahmung verbessert sich bei Kontakt.", notes: "Lächeln wird zunehmend erkennbar. Ahmt bekannte Personen nach. Nicht zurücklächeln.", trigger: "Human interaction", hazard: "Visual Mirroring Contagion", event: "Tester D-99 refused to stop smiling after 4 hours." },
-        { id: "03", name: "THE OBSERVER", cat: "Cranial / Sensory", status: "Unknown", threat: "High", tags: ["HIGH THREAT"], loc: "Abandoned Medical Corridor", desc: "Vertikale kraniale Öffnung, die als sekundäres Sinnesorgan fungiert.", notes: "Dauer des Blickkontakts korreliert mit Angstsymptomen. Erscheint in Reflexionen nach der Beobachtung.", trigger: "Gaze duration > 30s", hazard: "Post-Observation Spectral Imprint", event: "Entity detected in security mirror 07-B." },
-        { id: "04", name: "THE LURE", cat: "Marine Mimicry", status: "Deep Adaptation", threat: "Medium", tags: ["MARINE", "MIMICRY"], loc: "Flooded Containment Annex", desc: "Nagerähnliches Exemplar mit biologischem Köderfortsatz, der rhythmisch leuchtet.", notes: "Lichtimpulse wirken beruhigend auf Säugetiere. Physische Annäherung strikt limitieren.", trigger: "Proximity < 2m", hazard: "Hypnotic Light Pulse", event: "Researcher found sleeping inside flooded annex." },
-        { id: "05", name: "THE MAW", cat: "Oral Structure", status: "Feeding Risk", threat: "High", tags: ["HIGH THREAT", "ACTIVE"], loc: "Lower Laboratory Feeding Chamber", desc: "Sekundäre Kieferstruktur entfaltet sich aus dem Inneren. Reaktionszeit extrem gering.", notes: "Verzehrvorgang in unter 0,4 Sekunden. Keine Nahbereichsbeobachtung.", trigger: "Biological matter detection", hazard: "Extreme Jaw Expansion Speed", event: "Security drone consumed during inspection." },
-        { id: "06", name: "THE ECHO", cat: "Acoustic", status: "Auditory Response", threat: "Medium", tags: ["ACTIVE"], loc: "Acoustic Isolation Ward", desc: "Reagiert ausschließlich auf ferne oder geflüsterte Geräusche. Bei Stille völlig regungslos.", notes: "Gibt verzerrte Echos erkannter Geräusche von sich. Echo weicht oft von Quelle ab.", trigger: "Sound waves > 5dB", hazard: "Auditory Disorientation", event: "Recorded whispers that were never spoken." },
-        { id: "07", name: "THE GAZE", cat: "Deep Sea", status: "Marine Origin", threat: "High", tags: ["MARINE", "HIGH THREAT"], loc: "Offshore Recovery Tank", desc: "Tiefsee-Organismus mit biolumineszentem Fortsatz, der Augenbewegungen verfolgt.", notes: "Taucher berichteten davon, verfolgt zu werden. Untersuchung niemals alleine durchführen.", trigger: "Dynamic eye movement", hazard: "Tracking fixation", event: "Diver report: 'It followed me into the airlock'." },
-        { id: "08", name: "THE MIMIC", cat: "Mimicry", status: "Behavioral Adaptation", threat: "High", loc: "Lab Sector C", desc: "Exemplar ahmt Formen, Haltungen und Bewegungen der Umgebung in Echtzeit nach.", notes: "Hat zuletzt versucht, ein menschliches Gesicht zu imitieren. Lange Sitzungen vermeiden.", trigger: "Observation duration", hazard: "Anatomical Identity theft", event: "Attempted to replicate Senior Researcher K." },
-        { id: "09", name: "THE SPINE", cat: "Skeletal / Parasitic", status: "Host Parasite", threat: "High", loc: "Waste Disposal Corridor", desc: "Hase mit parasitärem Wirbelsäulen-Wachstum. Anhängsel reagieren auf nahe Bewegungen.", notes: "Keine Annäherung während aktiver Bewegung. Fressverhalten bisher undokumentiert.", trigger: "Vibration sensing", hazard: "Parasitic outreach", event: "Spines grew 15cm toward cleaning robot." },
-        { id: "10", name: "THE PRIMATE", cat: "Behavioral / Growth", status: "Unknown Symbiosis", threat: "High", loc: "Organic Storage Hall", desc: "Primat mit gehärteten Bio-Platten und anhängenden Eistrukturen. Hohes Bewusstsein.", notes: "Blinkt gelegentlich zurück. Beobachtungsschichten müssen häufig rotieren.", trigger: "Blinking patterns", hazard: "Cognitive Bonding", event: "Subject attempted to signal using Morse code." },
-        { id: "11", name: "THE GROWTH", cat: "Cranial Growth", status: "Unstable Mutation", threat: "High", loc: "Upper Bio-Enclosure", desc: "Hirsch mit unkontrolliertem kranialem Tumorwachstum. Expandiert trotz chemischer Hemmung.", notes: "Mehrere biologische Schichten gehören nicht zum Wirt. Keinen Fokus während Flare-Events.", trigger: "Flare events / Bright light", hazard: "Rapid Mutation Spread", event: "New ocular structure formed on left antler." },
-        { id: "12", name: "THE SUBJECT", cat: "Facial Response", status: "Behavioral Hazard", threat: "Medium", loc: "Routine Imaging Sector", desc: "Hybrid mit unwillkürlichem Lächelverhalten, das sich bei Beobachtung verstärkt.", notes: "Forscher verspürten den Drang, zurückzulächeln. Dem Lächeln niemals vertrauen.", trigger: "Direct eye contact", hazard: "Involuntary Facial Mirroring", event: "Security feed shows Subject smiling at 3AM." },
-        { id: "13", name: "THE BEETLE", cat: "Exoskeletal", status: "Structural Anomaly", threat: "High", loc: "Sealed Lower Lab Container", desc: "Käfer mit abnormaler Panzerschale. Interne Strukturen ähneln nicht der Standardanatomie.", notes: "Die Schale öffnete sich während der Beobachtung leicht. Äußere Hülle nicht berühren.", trigger: "Touch / Vibration", hazard: "Exoskeletal discharge", event: "Emitted high-frequency screech when touched." }
+        { id: "01", name: "THE WATCHER", cat: "Visual / Ocular", status: "Active Observation", threat: "Medium", tags: ["ACTIVE"], loc: "Sector A Surveillance Wing", desc: "Recovered surveillance specimen displaying abnormal ocular duplication across the cranial surface. The entity does not move unless unobserved.", notes: "Test subjects reported a persistent sensation of being watched. Blinking appears to trigger minor positional shifts. Do not break eye contact.", trigger: "Lack of direct observation", hazard: "Class-2 Ocular Shift", event: "Position shifted 3m during power failure." },
+        { id: "02", name: "THE SMILE UNIT", cat: "Facial Mimicry", status: "Cognitive Hazard", threat: "Medium", tags: ["ACTIVE", "MIMICRY"], loc: "Behavioral Testing Unit", desc: "Initially believed to be harmless. During prolonged observation the entity began mimicking human facial expressions. The mimicry improves with exposure.", notes: "Testers reported the expression becoming increasingly recognizable. Do not mirror the subject’s facial behavior.", trigger: "Human interaction", hazard: "Visual Mirroring Contagion", event: "Tester D-99 refused to stop smiling after 4 hours." },
+        { id: "03", name: "THE OBSERVER", cat: "Cranial / Sensory", status: "Unknown", threat: "High", tags: ["HIGH THREAT"], loc: "Abandoned Medical Corridor", desc: "Specimen displays a vertical cranial opening that appears to function as a secondary sensory organ.", notes: "Eye contact duration correlates with heightened anxiety in observers. Several researchers reported the entity appearing in reflections after observation ended.", trigger: "Gaze duration > 30s", hazard: "Post-Observation Spectral Imprint", event: "Entity detected in security mirror 07-B." },
+        { id: "04", name: "THE LURE", cat: "Marine Mimicry", status: "Deep Adaptation", threat: "Medium", tags: ["MARINE", "MIMICRY"], loc: "Flooded Containment Annex", desc: "Rodent-like specimen with cranial appendage resembling a deep-sea bioluminescent lure. The appendage emits faint light pulses when approached.", notes: "Small animals consistently move toward the light source. Human subjects describe the light as calming. Direct approach should be limited.", trigger: "Proximity < 2m", hazard: "Hypnotic Light Pulse", event: "Researcher found sleeping inside flooded annex." },
+        { id: "05", name: "THE MAW", cat: "Oral Structure", status: "Feeding Risk", threat: "High", tags: ["HIGH THREAT", "ACTIVE"], loc: "Lower Laboratory Feeding Chamber", desc: "Specimen appears harmless until jaw expansion occurs. A secondary jaw structure unfolds from inside the mouth.", notes: "Opening speed exceeds normal biological limits. Consumption occurs in < 0.4s. No close-range viewing.", trigger: "Biological matter detection", hazard: "Extreme Jaw Expansion Speed", event: "Security drone consumed during inspection." },
+        { id: "06", name: "THE ECHO", cat: "Acoustic", status: "Auditory Response", threat: "Medium", tags: ["ACTIVE"], loc: "Acoustic Isolation Ward", desc: "The specimen reacts only to distant or whispered sounds. When silence is maintained, the subject remains completely motionless.", notes: "Facial structure opens and emits a distorted echo of the original sound. Maintain silence during observation.", trigger: "Sound waves > 5dB", hazard: "Auditory Disorientation", event: "Recorded whispers that were never spoken." },
+        { id: "07", name: "THE GAZE", cat: "Deep Sea", status: "Marine Origin", threat: "High", tags: ["MARINE", "HIGH THREAT"], loc: "Offshore Recovery Tank", desc: "Deep-sea organism recovered during submersible expedition. Bioluminescent appendage tracks eye movement.", notes: "Divers reported feeling followed. Do not inspect alone.", trigger: "Dynamic eye movement", hazard: "Tracking fixation", event: "Diver report: 'It followed me into the airlock'." },
+        { id: "08", name: "THE MIMIC", cat: "Mimicry", status: "Behavioral Adaptation", threat: "High", loc: "Lab Sector C", desc: "Gastropod specimen demonstrating rapid environmental mimicry of nearby shapes, posture and movement.", notes: "During the last observation, the subject appeared to imitate a human face. Avoid prolonged observation.", trigger: "Observation duration", hazard: "Anatomical Identity theft", event: "Attempted to replicate Senior Researcher K." },
+        { id: "09", name: "THE SPINE", cat: "Skeletal / Parasitic", status: "Host Parasite", threat: "High", loc: "Waste Disposal Corridor", desc: "Recovered rabbit specimen exhibiting parasitic spinal growth. Structures are not skeletal and behave independently.", notes: "Each appendage reacts to nearby movement. Do not approach during active motion.", trigger: "Vibration sensing", hazard: "Parasitic outreach", event: "Spines grew 15cm toward cleaning robot." },
+        { id: "10", name: "THE PRIMATE", cat: "Behavioral / Growth", status: "Unknown Symbiosis", threat: "High", loc: "Organic Storage Hall", desc: "Primate-like organism recovered with hardened biological plates and attached egg-like structures.", notes: "Specimen occasionally blinks back when observed. Observation shifts must be rotated frequently.", trigger: "Blinking patterns", hazard: "Cognitive Bonding", event: "Subject attempted to signal using Morse code." },
+        { id: "11", name: "THE GROWTH", cat: "Cranial Growth", status: "Unstable Mutation", threat: "High", loc: "Upper Bio-Enclosure", desc: "Deer specimen recovered with uncontrolled, expanding cranial growths.", notes: "Scans indicate multiple biological layers not belonging to the host. Do not maintain focus during flare events.", trigger: "Flare events / Bright light", hazard: "Rapid Mutation Spread", event: "New ocular structure formed on left antler." },
+        { id: "12", name: "THE SUBJECT", cat: "Facial Response", status: "Behavioral Hazard", threat: "Medium", tags: ["ACTIVE"], loc: "Routine Imaging Sector", desc: "Unidentified hybrid specimen displaying involuntary smiling behavior that widens under observation.", notes: "Researchers reported feeling compelled to smile back. Do not trust the smile.", trigger: "Direct eye contact", hazard: "Involuntary Facial Mirroring", event: "Security feed shows Subject smiling at 3AM." },
+        { id: "13", name: "THE BEETLE", cat: "Exoskeletal", status: "Structural Anomaly", threat: "High", tags: ["PREHISTORIC"], loc: "Sealed Lower Lab Container", desc: "Beetle specimen with abnormal cranial shell formation that opens slightly during observation.", notes: "Internal structures do not resemble standard insect anatomy. Do not touch the outer shell.", trigger: "Touch / Vibration", hazard: "Exoskeletal discharge", event: "Emitted high-frequency screech when touched." }
     ];
 
     let activeFilter = 'ALL';
@@ -315,7 +315,6 @@
         filtered.forEach(e => {
             const card = document.createElement('div');
             card.className = 'card';
-            const threatClass = e.threat === 'High' ? 'badge-threat' : '';
             card.innerHTML = `
                 <div class="card-img-wrapper">
                     <img src="${e.id}.jpg.jpg" alt="${e.name}" onerror="this.src='https://via.placeholder.com/300x200/cccccc/000000?text=DATA_MISSING'">
@@ -332,7 +331,6 @@
             grid.appendChild(card);
         });
 
-        // Add Card 14 Corrupted
         if (search === '' && (activeFilter === 'ALL' || activeFilter === 'UNCLASSIFIED')) {
             const card14 = document.createElement('div');
             card14.className = 'card card-corrupted';
@@ -387,7 +385,6 @@
         document.body.style.overflow = 'auto';
     }
 
-    // Terminal Logic
     function handleTerminal(e) {
         if (e.key === 'Enter') {
             const input = e.target.value.toLowerCase().trim();
@@ -428,7 +425,7 @@
         }
     }
 
-    document.getElementById('current-date').innerText = new Date().toLocaleDateString('de-DE', {
+    document.getElementById('current-date').innerText = new Date().toLocaleDateString('en-US', {
         year: 'numeric', month: 'long', day: 'numeric'
     });
 </script>
