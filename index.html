@@ -3,213 +3,230 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ENTITY LOG | Classified Archive</title>
+    <title>ENTITY LOG | Terminal Access</title>
     <style>
         :root {
             --bg-deep: #020202;
             --bg-surface: #0a0a0a;
-            --bg-panel: #141414;
-            --text-main: #ffffff;
-            --text-muted: #a0a0a0;
             --accent-red: #bb0000;
-            --border-dim: #333333;
+            --text-main: #ffffff;
+            --text-muted: #666;
             --font-mono: 'Courier New', Courier, monospace;
-            --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { background-color: var(--bg-deep); color: var(--text-main); font-family: var(--font-sans); line-height: 1.6; overflow-x: hidden; }
-        
-        /* Scanline Effekt */
-        body::before {
-            content: ""; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%);
-            background-size: 100% 4px; z-index: 9999; pointer-events: none; opacity: 0.2;
+        body { 
+            background-color: var(--bg-deep); 
+            color: var(--text-main); 
+            font-family: var(--font-mono); 
+            overflow: hidden; /* Verhindert Scrollen auf der Startseite */
         }
 
-        .container { max-width: 1400px; margin: 0 auto; padding: 0 1.5rem; position: relative; z-index: 10; }
+        /* CRT Glitch Effekt */
+        .scanlines {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%);
+            background-size: 100% 4px; z-index: 10000; pointer-events: none; opacity: 0.2;
+        }
 
-        header { padding: 3rem 0 2rem 0; border-bottom: 1px solid var(--border-dim); margin-bottom: 2rem; }
-        .sys-badge { display: inline-block; border: 1px solid var(--accent-red); color: #ff3333; padding: 0.4rem 0.8rem; font-size: 0.8rem; font-weight: bold; letter-spacing: 2px; background: rgba(139, 0, 0, 0.1); margin-bottom: 1rem; }
-        h1 { font-size: 3rem; text-transform: uppercase; letter-spacing: -1px; margin-bottom: 0.5rem; }
-        .subtitle { font-family: var(--font-mono); color: var(--text-muted); letter-spacing: 3px; }
+        /* --- STARTSEITE (GATEKEEPER) --- */
+        #landing-page {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 2rem;
+            z-index: 500;
+            position: relative;
+        }
 
-        /* Filter & Suche */
-        .controls { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 2.5rem; background: var(--bg-surface); padding: 1rem; border: 1px solid var(--border-dim); }
-        .filters { display: flex; gap: 0.5rem; flex-wrap: wrap; }
-        .filter-btn { background: #111; border: 1px solid var(--border-dim); color: #ddd; padding: 0.6rem 1rem; font-family: var(--font-mono); cursor: pointer; text-transform: uppercase; font-size: 0.75rem; transition: 0.3s; }
-        .filter-btn.active, .filter-btn:hover { background: #fff; color: #000; border-color: #fff; }
-        
-        .search-box input { background: #000; border: 1px solid var(--border-dim); color: #fff; padding: 0.6rem 1rem; font-family: var(--font-mono); width: 250px; outline: none; }
-        .search-box input:focus { border-color: var(--accent-red); }
+        .terminal-loader {
+            color: var(--accent-red);
+            font-size: 0.9rem;
+            margin-bottom: 2rem;
+            text-align: left;
+            width: 100%;
+            max-width: 300px;
+        }
 
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; margin-bottom: 4rem; }
+        .enter-btn {
+            background: transparent;
+            border: 2px solid var(--accent-red);
+            color: var(--accent-red);
+            padding: 1.5rem 3rem;
+            font-size: 1.5rem;
+            font-family: var(--font-mono);
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 5px;
+            transition: 0.3s;
+            box-shadow: 0 0 15px rgba(187, 0, 0, 0.2);
+        }
 
-        /* Karten */
-        .card { background: var(--bg-panel); border: 1px solid var(--border-dim); cursor: pointer; transition: 0.3s; overflow: hidden; position: relative; display: flex; flex-direction: column; }
-        .card:hover { border-color: var(--accent-red); transform: translateY(-3px); }
-        .card-img { width: 100%; height: 220px; object-fit: cover; background: #080808; border-bottom: 1px solid var(--border-dim); }
-        .card-content { padding: 1.2rem; flex-grow: 1; }
-        .card-title { font-size: 1.3rem; font-weight: bold; margin-bottom: 0.5rem; color: #fff; }
-        .log-id { font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.3rem; }
-        
-        .badge { font-family: var(--font-mono); font-size: 0.65rem; padding: 0.2rem 0.5rem; border: 1px solid var(--border-dim); margin-top: 0.5rem; display: inline-block; font-weight: bold; }
-        .threat-high { border-color: var(--accent-red); color: #ff4444; }
+        .enter-btn:active {
+            background: var(--accent-red);
+            color: white;
+            box-shadow: 0 0 30px var(--accent-red);
+        }
+
+        /* --- HAUPTSEITE (DATABASE) --- */
+        #main-content {
+            display: none; /* Versteckt bis zum Klick */
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .container { max-width: 1400px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+        header { border-bottom: 2px solid var(--accent-red); margin-bottom: 2rem; padding-bottom: 1rem; }
+        .filter-nav { display: flex; gap: 8px; margin-bottom: 2rem; overflow-x: auto; padding-bottom: 10px; }
+        .filter-btn { 
+            background: #111; border: 1px solid #333; color: #888; 
+            padding: 12px 18px; cursor: pointer; text-transform: uppercase; font-size: 0.7rem;
+            white-space: nowrap; font-family: var(--font-mono);
+        }
+        .filter-btn.active { background: var(--accent-red); color: white; border-color: var(--accent-red); }
+
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+        .card { background: #111; border: 1px solid #222; cursor: pointer; }
+        .card-img { width: 100%; height: 200px; object-fit: cover; border-bottom: 1px solid #222; }
+        .card-body { padding: 15px; }
+        .log-tag { color: var(--accent-red); font-size: 0.7rem; font-weight: bold; }
 
         /* Detail-Ansicht */
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 10000; display: none; align-items: center; justify-content: center; padding: 1rem; backdrop-filter: blur(5px); }
-        .modal-overlay.active { display: flex; }
-        .modal-content { background: var(--bg-surface); border: 1px solid #444; max-width: 1000px; width: 100%; max-height: 90vh; overflow-y: auto; display: grid; grid-template-columns: 1.2fr 1fr; position: relative; }
-        @media (max-width: 800px) { .modal-content { grid-template-columns: 1fr; } }
-        
-        .modal-img { width: 100%; height: auto; display: block; background: #000; }
-        .modal-data { padding: 2.5rem; }
-        .data-label { font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; display: block; margin-bottom: 0.2rem; }
-        .warning-box { margin-top: 2rem; padding: 1.5rem; border: 1px solid var(--accent-red); background: rgba(139, 0, 0, 0.1); position: relative; }
-        .warning-box::before { content: "!"; position: absolute; top: -12px; left: 10px; background: #000; color: var(--accent-red); padding: 0 5px; border: 1px solid var(--accent-red); font-weight: bold; }
-        
-        .close-btn { position: absolute; top: 1rem; right: 1rem; background: #fff; color: #000; border: none; padding: 0.5rem 1rem; cursor: pointer; font-family: var(--font-mono); font-weight: bold; z-index: 100; }
+        .modal { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.98); display:none; align-items:center; justify-content:center; z-index:20000; padding: 1rem; }
+        .modal.active { display:flex; }
+        .modal-box { background: var(--bg-surface); width: 100%; max-width: 800px; border: 1px solid #444; display: grid; grid-template-columns: 1fr 1fr; position: relative; }
+        @media (max-width: 700px) { .modal-box { grid-template-columns: 1fr; overflow-y: auto; max-height: 90vh; } }
+        .close-x { position: absolute; top: 10px; right: 10px; background: white; color: black; border: none; padding: 5px 10px; font-weight: bold; cursor: pointer; z-index: 100; }
+        .modal-img { width: 100%; height: 100%; object-fit: cover; min-height: 250px; }
+        .modal-text { padding: 2rem; }
+        .warning { border: 1px solid var(--accent-red); padding: 15px; margin-top: 20px; color: #ff4444; font-size: 0.85rem; background: rgba(187, 0, 0, 0.05); }
 
-        footer { text-align: center; padding: 3rem; border-top: 1px solid var(--border-dim); color: var(--text-muted); font-family: var(--font-mono); font-size: 0.8rem; }
+        /* Animationen */
+        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0; } 100% { opacity: 1; } }
+        .blink { animation: blink 1s infinite; }
     </style>
 </head>
 <body>
 
+<div class="scanlines"></div>
+
+<div id="landing-page">
+    <div class="terminal-loader">
+        <p>> SYTEM_CHECK: OK</p>
+        <p>> SECURITY_ENCRYPTION: ACTIVE</p>
+        <p>> SOURCE: CLASSIFIED_BIOLAB</p>
+        <p>> STATUS: <span class="blink">WAITING...</span></p>
+    </div>
+    <h1 style="margin-bottom: 3rem; letter-spacing: 10px; font-size: 2rem;">ENTITY LOG</h1>
+    <button class="enter-btn" onclick="enterDatabase()">Enter Database</button>
+</div>
+
+<div id="main-content">
     <div class="container">
         <header>
-            <div class="sys-badge">CLASSIFIED / RESTRICTED ACCESS</div>
-            <h1>Entity Log</h1>
-            <div class="subtitle">Biological Specimen Database</div>
+            <p style="color: var(--accent-red); font-size: 0.7rem; font-weight: bold; margin-bottom: 0.5rem;">DATABASE_ACCESS // VERSION_2.0.26</p>
+            <h1>Specimen Archive</h1>
         </header>
 
-        <div class="controls">
-            <div class="filters">
-                <button class="filter-btn active" data-filter="ALL">ALL</button>
-                <button class="filter-btn" data-filter="ACTIVE">ACTIVE</button>
-                <button class="filter-btn" data-filter="HIGH">HIGH THREAT</button>
-                <button class="filter-btn" data-filter="PREHISTORIC">PREHISTORIC</button>
-            </div>
-            <div class="search-box">
-                <input type="text" id="searchInput" placeholder="Search ID or Name..." autocomplete="off">
-            </div>
-        </div>
+        <nav class="filter-nav">
+            <button class="filter-btn active" onclick="filterLogs('ALL', this)">[ ALL ]</button>
+            <button class="filter-btn" onclick="filterLogs('HUMANOID', this)">[ HUMANOID ]</button>
+            <button class="filter-btn" onclick="filterLogs('ANOMALY', this)">[ ANOMALY ]</button>
+            <button class="filter-btn" onclick="filterLogs('PREHISTORIC', this)">[ PREHISTORIC ]</button>
+        </nav>
 
-        <div class="grid" id="entityGrid"></div>
+        <div class="grid" id="grid"></div>
     </div>
+    <footer style="text-align: center; padding: 2rem; color: #333; font-size: 0.7rem;">END OF LOCAL STORAGE</footer>
+</div>
 
-    <footer>RECOVERED ARCHIVE remains incomplete // 2026</footer>
-
-    <div class="modal-overlay" id="modal">
-        <div class="modal-content">
-            <button class="close-btn" id="close">X</button>
-            <img src="" class="modal-img" id="mImg">
-            <div class="modal-data">
-                <span class="data-label">Designation</span>
-                <h2 id="mTitle" style="font-size: 2rem; margin-bottom: 1.5rem; text-transform: uppercase;"></h2>
-                
-                <div style="margin-bottom: 1rem;">
-                    <span class="data-label">Status / Category</span>
-                    <p id="mMeta" class="mono" style="color: #ddd;"></p>
-                </div>
-                
-                <div style="margin-bottom: 1rem;">
-                    <span class="data-label">Observations</span>
-                    <p id="mDesc" style="color: #ccc; font-size: 0.95rem;"></p>
-                </div>
-
-                <div class="warning-box">
-                    <span class="data-label" style="color: var(--accent-red);">Protocol</span>
-                    <p id="mWarn" style="color: #fff;"></p>
-                </div>
+<div class="modal" id="modal">
+    <div class="modal-box">
+        <button class="close-x" onclick="closeModal()">X</button>
+        <img id="mImg" class="modal-img">
+        <div class="modal-text">
+            <p id="mID" style="color: var(--accent-red); font-weight: bold; font-size: 0.8rem;"></p>
+            <h2 id="mTitle" style="text-transform: uppercase; margin-bottom: 1rem; font-size: 1.8rem;"></h2>
+            <p id="mDesc" style="font-size: 0.9rem; color: #ccc; margin-bottom: 1rem;"></p>
+            <div class="warning">
+                <strong>CONTAINMENT PROTOCOL:</strong><br>
+                <span id="mWarn"></span>
             </div>
         </div>
     </div>
+</div>
 
-    <script>
-        const entities = [
-            { id: "01", name: "THE WATCHER", threat: "MEDIUM", cat: "ACTIVE", status: "OBSERVING", desc: "Recovered specimen does not blink. It appears aware of the camera. Eye contact remains unbroken throughout recording.", warn: "Direct observation not advised for prolonged periods." },
-            { id: "02", name: "SMILE UNIT", threat: "MEDIUM", cat: "ACTIVE", status: "UNSTABLE", desc: "Subject began mimicking human facial expressions. It continued smiling after observation ended.", warn: "Do not mirror facial behavior." },
-            { id: "03", name: "THE OBSERVER", threat: "HIGH", cat: "ACTIVE", status: "ACTIVE", desc: "Multiple ocular structures detected. Specimen maintains continuous visual contact.", warn: "Avoid direct line-of-sight exposure." },
-            { id: "04", name: "THE LURE", threat: "MEDIUM", cat: "ACTIVE", status: "UNKNOWN", desc: "Specimen extends unknown appendages when observed. Movement increases when approached.", warn: "Maintain distance during inspection." },
-            { id: "05", name: "THE MAW", threat: "HIGH", cat: "ACTIVE", status: "HOSTILE", desc: "Subject opens a secondary jaw structure when observers move closer. Occurs without warning.", warn: "No close-range viewing." },
-            { id: "06", name: "THE ECHO", threat: "MEDIUM", cat: "ACTIVE", status: "LISTENING", desc: "Specimen reacts to distant sounds. Movement detected even in complete silence.", warn: "Audio testing restricted. Silence required." },
-            { id: "07", name: "THE GAZE", threat: "HIGH", cat: "ACTIVE", status: "DEEP SEA", desc: "Recovered deep-sea specimen shows abnormal eye formation. Tracking continues without head movement.", warn: "Do not inspect alone." },
-            { id: "08", name: "THE MIMIC", threat: "HIGH", cat: "ACTIVE", status: "ACTIVE", desc: "Specimen displays mimic behavior after prolonged observation. It learned by watching.", warn: "Avoid extended visual exposure." },
-            { id: "09", name: "THE SPINE", threat: "HIGH", cat: "ACTIVE", status: "UNCLASSIFIED", desc: "Recovered subject shows external spinal movement. Vertebral motion is independent.", warn: "Approach during feeding prohibited." },
-            { id: "10", name: "THE PRIMATE", threat: "HIGH", cat: "ACTIVE", status: "ACTIVE", desc: "Primate specimen shows abnormal awareness. Behavioral response suggests recognition.", warn: "Observer rotation recommended." },
-            { id: "11", name: "THE SENTINEL", threat: "HIGH", cat: "ACTIVE", status: "ACTIVE", desc: "Antler mutation recorded during observation. Growth spread within seconds.", warn: "Do not maintain line of sight during flare." },
-            { id: "12", name: "THE SUBJECT", threat: "MEDIUM", cat: "ACTIVE", status: "ACTIVE", desc: "Specimen displays abnormal smiling behavior during routine containment imaging.", warn: "Do not trust the smile." },
-            { id: "13", name: "THE BEETLE", threat: "HIGH", cat: "ACTIVE", status: "ACTIVE", desc: "Specimen reveals abnormal cranial structure beneath outer shell. Living neural mass exposed.", warn: "Do not touch the outer layer." },
-            { id: "14", name: "THE STEGOSEAL", threat: "HIGH", cat: "PREHISTORIC", status: "ACTIVE", desc: "Marine specimen with abnormal dorsal plates. Visual focus maintained despite ocular whitening.", warn: "Approach from behind prohibited." }
-        ];
+<script>
+    const data = [
+        { id: "01", name: "The Watcher", cat: "HUMANOID", desc: "Specimen exhibits continuous visual focus. Neural activity remains high.", warn: "Visual contact must not be broken by observer." },
+        { id: "02", name: "Smile Unit", cat: "HUMANOID", desc: "Sub-dermal muscle manipulation mimics human joy. Intent: Hostile.", warn: "Do not replicate facial expressions." },
+        { id: "03", name: "The Observer", cat: "ANOMALY", desc: "Multiple visual sensors detected. 360-degree awareness field.", warn: "Total darkness required for containment." },
+        { id: "04", name: "The Lure", cat: "ANOMALY", desc: "Biological protrusions designed for deception and entrapment.", warn: "Physical proximity prohibited." },
+        { id: "05", name: "The Maw", cat: "ANOMALY", desc: "Secondary oral cavity used for rapid matter consumption.", warn: "No organic matter within 10 meters." },
+        { id: "06", name: "The Echo", cat: "ANOMALY", desc: "Specimen reacts to auditory stimuli. Movement is sound-dependent.", warn: "Strict silence in Sector 06." },
+        { id: "07", name: "The Gaze", cat: "ANOMALY", desc: "Deep-sea ocular entity. Adapted for high-pressure surveillance.", warn: "Do not submerge surveillance units." },
+        { id: "08", name: "The Mimic", cat: "HUMANOID", desc: "Advanced behavioral replication. Can impersonate personnel.", warn: "Biometric verification required daily." },
+        { id: "09", name: "The Spine", cat: "ANOMALY", desc: "Exposed vertebral structure with independent motor control.", warn: "Neural shock risk on contact." },
+        { id: "10", name: "The Primate", cat: "HUMANOID", desc: "Intelligence level matches Class-A scientists. High awareness.", warn: "Minimal verbal interaction allowed." },
+        { id: "11", name: "The Sentinel", cat: "ANOMALY", desc: "Statue-like posture. Activates upon undetected movement.", warn: "Never lose visual contact." },
+        { id: "12", name: "The Subject", cat: "HUMANOID", desc: "Patient Zero of the 'Smiling Event'. Cognitive hazard.", warn: "Psychological screening mandatory." },
+        { id: "13", name: "The Beetle", cat: "PREHISTORIC", desc: "Ancient chitin-armored entity. Living tissue beneath shell.", warn: "High-caliber tools required for inspection." }
+    ];
 
-        const grid = document.getElementById('entityGrid');
-        const searchInput = document.getElementById('searchInput');
-        const filterBtns = document.querySelectorAll('.filter-btn');
+    function enterDatabase() {
+        document.getElementById('landing-page').style.display = 'none';
+        document.getElementById('main-content').style.display = 'block';
+        document.body.style.overflow = 'auto'; // Scrollen wieder erlauben
+        render('ALL');
+    }
 
-        function render(filter = "ALL", search = "") {
-            grid.innerHTML = '';
-            const filtered = entities.filter(e => {
-                const matchesSearch = e.name.toLowerCase().includes(search.toLowerCase()) || e.id.includes(search);
-                let matchesFilter = false;
-                if (filter === "ALL") matchesFilter = true;
-                else if (filter === "HIGH") matchesFilter = e.threat === "HIGH";
-                else if (filter === "PREHISTORIC") matchesFilter = e.cat === "PREHISTORIC";
-                else if (filter === "ACTIVE") matchesFilter = e.cat === "ACTIVE";
-                return matchesSearch && matchesFilter;
-            });
-
-            filtered.forEach(e => {
-                const card = document.createElement('div');
-                card.className = 'card';
-                // WICHTIG: Deine Dateiendung .jpg.jpg
-                const imgPath = `${e.id}.jpg.jpg`;
-                card.innerHTML = `
-                    <img src="${imgPath}" class="card-img" onerror="this.src='https://via.placeholder.com/400x250/050505/333?text=DATA+REDACTED'">
-                    <div class="card-content">
-                        <div class="log-id">LOG // ${e.id}</div>
-                        <div class="card-title">${e.name}</div>
-                        <span class="badge ${e.threat === 'HIGH' ? 'threat-high' : ''}">${e.threat} THREAT</span>
-                        <span class="badge" style="margin-left:5px">${e.cat}</span>
-                    </div>
-                `;
-                card.onclick = () => openModal(e);
-                grid.appendChild(card);
-            });
-        }
-
-        function openModal(e) {
-            document.getElementById('mTitle').innerText = e.name;
-            document.getElementById('mLog').innerText = `IDENTIFIER: LOG-${e.id}`;
-            document.getElementById('mMeta').innerText = `${e.status} // CLASSIFICATION: ${e.cat}`;
-            document.getElementById('mDesc').innerText = e.desc;
-            document.getElementById('mWarn').innerText = e.warn;
-            
-            // Mutation Logik mit .jpg.jpg
-            const mImgPath = (e.id === "01") ? `${e.id}.jpg.jpg` : `${e.id}m.jpg.jpg`;
-            const mImg = document.getElementById('mImg');
-            mImg.src = mImgPath;
-            mImg.onerror = () => { mImg.src = `${e.id}.jpg.jpg`; };
-            
-            document.getElementById('modal').classList.add('active');
-        }
-
-        document.getElementById('close').onclick = () => document.getElementById('modal').classList.remove('active');
+    function render(filter) {
+        const grid = document.getElementById('grid');
+        grid.innerHTML = '';
+        const filtered = (filter === 'ALL') ? data : data.filter(e => e.cat === filter);
         
-        searchInput.oninput = () => {
-            const activeFilter = document.querySelector('.filter-btn.active').dataset.filter;
-            render(activeFilter, searchInput.value);
-        };
-
-        filterBtns.forEach(btn => {
-            btn.onclick = () => {
-                filterBtns.forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                render(btn.dataset.filter, searchInput.value);
-            };
+        filtered.forEach(e => {
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.innerHTML = `
+                <img src="${e.id}.jpg.jpg" class="card-img" onerror="this.src='https://via.placeholder.com/300x200/000/333?text=NO+IMAGE'">
+                <div class="card-body">
+                    <p class="log-tag">LOG // ${e.id}</p>
+                    <h3>${e.name}</h3>
+                </div>
+            `;
+            card.onclick = () => openModal(e);
+            grid.appendChild(card);
         });
+    }
 
-        render();
-    </script>
+    function filterLogs(cat, btn) {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        render(cat);
+    }
+
+    function openModal(e) {
+        document.getElementById('mTitle').innerText = e.name;
+        document.getElementById('mID').innerText = `DESIGNATION: LOG-${e.id}`;
+        document.getElementById('mDesc').innerText = e.desc;
+        document.getElementById('mWarn').innerText = e.warn;
+        
+        const mImg = document.getElementById('mImg');
+        const path = (e.id === "01") ? `${e.id}.jpg.jpg` : `${e.id}m.jpg.jpg`;
+        mImg.src = path;
+        mImg.onerror = () => { mImg.src = `${e.id}.jpg.jpg`; };
+        
+        document.getElementById('modal').classList.add('active');
+    }
+
+    function closeModal() { document.getElementById('modal').classList.remove('active'); }
+</script>
+
 </body>
 </html>
