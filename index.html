@@ -5,878 +5,116 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ENTITY LOG | Classified Archive</title>
     <style>
-        /* CSS VARIABLES - COLOR PALETTE & TYPOGRAPHY */
         :root {
             --bg-deep: #020202;
             --bg-surface: #0a0a0a;
             --bg-panel: #141414;
-            --bg-hover: #1a1a1a;
-            --text-main: #ffffff; /* Kontrast maximiert */
-            --text-muted: #a0a0a0; /* Helleres Grau für bessere Lesbarkeit */
-            --accent-red: #bb0000; /* Etwas leuchtenderes Rot */
-            --accent-red-glow: rgba(187, 0, 0, 0.5);
-            --border-dim: #333333; /* Ränder klarer definiert */
-            --border-light: #555555;
+            --text-main: #ffffff;
+            --text-muted: #a0a0a0;
+            --accent-red: #bb0000;
+            --border-dim: #333333;
             --font-mono: 'Courier New', Courier, monospace;
             --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            --transition-speed: 0.3s;
         }
-
-        /* RESET & BASE STYLES */
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        body {
-            background-color: var(--bg-deep);
-            color: var(--text-main);
-            font-family: var(--font-sans);
-            line-height: 1.6;
-            overflow-x: hidden;
-            position: relative;
-            font-size: 16px; /* Basis-Schriftgröße leicht erhöht */
-        }
-
-        /* SCANLINE & CRT EFFECT - DEUTLICH REDUZIERT */
-        body::before {
-            content: "";
-            position: fixed;
-            top: 0; left: 0; width: 100vw; height: 100vh;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.2) 50%);
-            background-size: 100% 4px;
-            z-index: 9999;
-            pointer-events: none;
-            opacity: 0.25; /* Vorher 0.6 - jetzt viel subtiler */
-        }
-
-        body::after {
-            content: "";
-            position: fixed;
-            top: 0; left: 0; width: 100vw; height: 100vh;
-            background: radial-gradient(circle, rgba(0,0,0,0) 75%, rgba(0,0,0,0.6) 100%); /* Helle Mitte deutlich vergrößert */
-            z-index: 9998;
-            pointer-events: none;
-        }
-
-        /* TYPOGRAPHY UTILITIES */
-        .mono { font-family: var(--font-mono); }
-        .text-red { color: var(--accent-red); }
-        .text-muted { color: var(--text-muted); }
-        .uppercase { text-transform: uppercase; }
-        
-        /* LAYOUT CONTAINER */
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 0 1.5rem;
-            position: relative;
-            z-index: 10;
-        }
-
-        /* HERO SECTION */
-        header {
-            padding: 3rem 0 2rem 0;
-            border-bottom: 1px solid var(--border-dim);
-            margin-bottom: 2rem;
-            position: relative;
-        }
-
-        .sys-badge {
-            display: inline-block;
-            border: 1px solid var(--accent-red);
-            color: #ff3333;
-            padding: 0.4rem 0.8rem;
-            font-size: 0.85rem;
-            font-weight: bold;
-            letter-spacing: 2px;
-            background: rgba(139, 0, 0, 0.15);
-            margin-bottom: 1.5rem;
-            animation: pulse-border 2s infinite alternate;
-        }
-
-        @keyframes pulse-border {
-            0% { box-shadow: 0 0 0px var(--accent-red-glow); }
-            100% { box-shadow: 0 0 10px var(--accent-red-glow); }
-        }
-
-        header h1 {
-            font-size: clamp(2.5rem, 6vw, 5rem);
-            font-weight: 900;
-            letter-spacing: -1px;
-            line-height: 1.1;
-            margin-bottom: 0.5rem;
-            text-shadow: 2px 2px 0px #000;
-            color: #ffffff;
-        }
-
-        header .subtitle {
-            font-family: var(--font-mono);
-            font-size: 1.1rem;
-            color: var(--text-muted);
-            letter-spacing: 3px;
-            margin-bottom: 1.5rem;
-        }
-
-        header .intro-text {
-            max-width: 600px;
-            color: #cccccc;
-            font-size: 1rem;
-            border-left: 2px solid var(--accent-red);
-            padding-left: 1rem;
-        }
-
-        /* NAVIGATION & FILTERS */
-        .controls {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 1rem;
-            margin-bottom: 2.5rem;
-            background: var(--bg-surface);
-            padding: 1rem;
-            border: 1px solid var(--border-dim);
-        }
-
-        .filters {
-            display: flex;
-            gap: 0.5rem;
-            flex-wrap: wrap;
-        }
-
-        .filter-btn {
-            background: #111;
-            border: 1px solid var(--border-dim);
-            color: #dddddd;
-            padding: 0.6rem 1rem;
-            font-family: var(--font-mono);
-            font-size: 0.85rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all var(--transition-speed);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .filter-btn:hover, .filter-btn.active {
-            border-color: #ffffff;
-            color: #000000;
-            background: #ffffff;
-        }
-
-        .search-box input {
-            background: var(--bg-panel);
-            border: 1px solid var(--border-dim);
-            color: #ffffff;
-            padding: 0.8rem 1rem;
-            font-family: var(--font-mono);
-            width: 100%;
-            max-width: 300px;
-            outline: none;
-            transition: border-color var(--transition-speed);
-        }
-
-        .search-box input:focus {
-            border-color: var(--accent-red);
-        }
-
-        /* MAIN GRID */
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 4rem;
-        }
-
-        /* ENTITY CARD */
-        .card {
-            background: var(--bg-panel);
-            border: 1px solid var(--border-dim);
-            position: relative;
-            cursor: pointer;
-            transition: all var(--transition-speed);
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-
-        .card:hover {
-            border-color: var(--accent-red);
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.9);
-        }
-
-        .card::before {
-            content: "";
-            position: absolute;
-            top: 0; left: 0; width: 4px; height: 100%;
-            background: var(--border-light);
-            transition: background var(--transition-speed);
-        }
-
-        .card:hover::before {
-            background: var(--accent-red);
-        }
-
-        .card-img-placeholder {
-            height: 200px;
-            background: #080808;
-            border-bottom: 1px solid var(--border-dim);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .card-img-placeholder::after {
-            content: "[ REDACTED VISUAL ]";
-            font-family: var(--font-mono);
-            color: #444;
-            font-size: 0.9rem;
-            letter-spacing: 2px;
-        }
-
-        .card-content {
-            padding: 1.2rem;
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 1rem;
-            border-bottom: 1px dashed var(--border-dim);
-            padding-bottom: 0.8rem;
-        }
-
-        .log-num {
-            font-family: var(--font-mono);
-            color: var(--text-muted);
-            font-size: 0.9rem;
-            font-weight: bold;
-        }
-
-        .card-title {
-            font-size: 1.3rem;
-            font-weight: bold;
-            letter-spacing: 1px;
-            margin-top: 0.3rem;
-            color: #ffffff;
-        }
-
-        .badges {
-            display: flex;
-            flex-direction: column;
-            gap: 0.4rem;
-            align-items: flex-end;
-        }
-
-        .badge {
-            font-family: var(--font-mono);
-            font-size: 0.7rem;
-            padding: 0.3rem 0.6rem;
-            letter-spacing: 1px;
-            background: #000;
-            border: 1px solid var(--border-dim);
-            font-weight: bold;
-        }
-
-        .badge.threat-high { border-color: var(--accent-red); color: #ff4444; }
-        .badge.threat-medium { border-color: #d4af37; color: #d4af37; }
-        .badge.threat-unknown { border-color: #888; color: #ccc; }
-
-        .card-desc {
-            font-size: 0.95rem;
-            color: #dddddd;
-            margin-bottom: 1.5rem;
-            flex-grow: 1;
-            line-height: 1.5;
-        }
-
-        .card-footer-tech {
-            font-family: var(--font-mono);
-            font-size: 0.8rem;
-            color: #aaaaaa;
-            display: flex;
-            justify-content: space-between;
-            border-top: 1px solid var(--border-dim);
-            padding-top: 0.8rem;
-            font-weight: bold;
-        }
-
-        /* MODAL / DETAIL VIEW */
-        .modal-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.95);
-            backdrop-filter: blur(8px);
-            z-index: 100000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease;
-            padding: 1rem;
-        }
-
-        .modal-overlay.active {
-            opacity: 1;
-            pointer-events: auto;
-        }
-
-        .modal-content {
-            background: var(--bg-surface);
-            border: 1px solid #444;
-            width: 100%;
-            max-width: 1000px;
-            max-height: 90vh;
-            overflow-y: auto;
-            position: relative;
-            transform: translateY(20px);
-            transition: transform 0.3s ease;
-            box-shadow: 0 0 50px rgba(0,0,0,1);
-            display: flex;
-            flex-direction: column;
-        }
-
-        .modal-overlay.active .modal-content {
-            transform: translateY(0);
-        }
-
-        .modal-close {
-            position: absolute;
-            top: 1rem; right: 1rem;
-            background: #111;
-            border: 1px solid #555;
-            color: #fff;
-            width: 45px; height: 45px;
-            font-family: var(--font-mono);
-            font-size: 1.2rem;
-            font-weight: bold;
-            cursor: pointer;
-            z-index: 10;
-            transition: all 0.2s;
-        }
-
-        .modal-close:hover {
-            background: var(--accent-red);
-            border-color: var(--accent-red);
-        }
-
-        .modal-grid {
-            display: grid;
-            grid-template-columns: 1fr 1.5fr;
-        }
-
-        @media (max-width: 800px) {
-            .modal-grid { grid-template-columns: 1fr; }
-            .modal-visual { border-right: none; border-bottom: 1px solid var(--border-dim); }
-        }
-
-        .modal-visual {
-            background: #050505;
-            border-right: 1px solid var(--border-dim);
-            padding: 1.5rem;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .modal-img-container {
-            width: 100%;
-            aspect-ratio: 4/3;
-            background: #111;
-            border: 1px solid #333;
-            margin-bottom: 1.5rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-        }
-        
-        .modal-img-container::after {
-            content: "NO VISUAL DATA CONFIGURED";
-            font-family: var(--font-mono);
-            color: #555;
-            font-size: 0.8rem;
-            letter-spacing: 1px;
-            text-align: center;
-            padding: 1rem;
-        }
-
-        .modal-data {
-            padding: 2rem 1.5rem;
-        }
-
-        .modal-header {
-            margin-bottom: 1.5rem;
-            border-bottom: 2px solid var(--border-dim);
-            padding-bottom: 1rem;
-        }
-
-        .modal-log-id {
-            font-family: var(--font-mono);
-            color: #ff4444;
-            letter-spacing: 2px;
-            font-size: 1rem;
-            font-weight: bold;
-            margin-bottom: 0.5rem;
-        }
-
-        .modal-title {
-            font-size: 2rem;
-            line-height: 1.1;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: #ffffff;
-        }
-
-        .data-group {
-            margin-bottom: 1.5rem;
-        }
-
-        .data-label {
-            font-family: var(--font-mono);
-            font-size: 0.8rem;
-            color: #aaaaaa;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 0.4rem;
-            display: block;
-            font-weight: bold;
-        }
-
-        .data-value {
-            font-size: 1.05rem;
-            color: #ffffff;
-            line-height: 1.5;
-        }
-
-        .warning-box {
-            margin-top: 2rem;
-            padding: 1.2rem;
-            border: 1px solid var(--accent-red);
-            background: rgba(139, 0, 0, 0.1);
-            position: relative;
-        }
-
-        .warning-box::before {
-            content: "!";
-            position: absolute;
-            top: -15px; left: 15px;
-            background: #000;
-            color: #ff4444;
-            font-family: var(--font-mono);
-            font-size: 1.2rem;
-            font-weight: bold;
-            padding: 0 10px;
-            border: 1px solid var(--accent-red);
-        }
-
-        /* SCROLLBAR CUSTOMIZATION */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: var(--bg-deep); }
-        ::-webkit-scrollbar-thumb { background: #555; }
-        ::-webkit-scrollbar-thumb:hover { background: var(--accent-red); }
-
-        /* FOOTER */
-        footer {
-            text-align: center;
-            padding: 2.5rem 1rem;
-            border-top: 1px solid var(--border-dim);
-            font-family: var(--font-mono);
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            letter-spacing: 1px;
-            background: var(--bg-surface);
-            position: relative;
-            z-index: 10;
-        }
-
-        @media (max-width: 600px) {
-            .controls { flex-direction: column; align-items: stretch; }
-            .search-box input { width: 100%; max-width: 100%; }
-            header h1 { font-size: 2.2rem; }
-            .filter-btn { width: 100%; margin-bottom: 5px; }
-            .filters { flex-direction: column; width: 100%; }
-        }
-        
-        .no-results {
-            grid-column: 1 / -1;
-            text-align: center;
-            padding: 3rem 1rem;
-            font-family: var(--font-mono);
-            color: #ffffff;
-            border: 1px dashed var(--border-dim);
-            font-size: 1.1rem;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background-color: var(--bg-deep); color: var(--text-main); font-family: var(--font-sans); line-height: 1.6; overflow-x: hidden; position: relative; }
+        body::before { content: ""; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%); background-size: 100% 4px; z-index: 9999; pointer-events: none; opacity: 0.2; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 0 1.5rem; position: relative; z-index: 10; }
+        header { padding: 3rem 0 2rem 0; border-bottom: 1px solid var(--border-dim); margin-bottom: 2rem; }
+        .sys-badge { display: inline-block; border: 1px solid var(--accent-red); color: #ff3333; padding: 0.4rem 0.8rem; font-size: 0.8rem; font-weight: bold; letter-spacing: 2px; background: rgba(139, 0, 0, 0.1); margin-bottom: 1rem; }
+        h1 { font-size: 3rem; text-transform: uppercase; letter-spacing: -1px; }
+        .subtitle { font-family: var(--font-mono); color: var(--text-muted); letter-spacing: 3px; margin-bottom: 1rem; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; margin-bottom: 4rem; }
+        .card { background: var(--bg-panel); border: 1px solid var(--border-dim); cursor: pointer; transition: 0.3s; overflow: hidden; position: relative; }
+        .card:hover { border-color: var(--accent-red); transform: translateY(-3px); }
+        .card-img { width: 100%; height: 200px; object-fit: cover; background: #080808; border-bottom: 1px solid var(--border-dim); }
+        .card-content { padding: 1.2rem; }
+        .card-title { font-size: 1.3rem; font-weight: bold; margin-bottom: 0.5rem; }
+        .log-id { font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-muted); }
+        .badge { font-family: var(--font-mono); font-size: 0.7rem; padding: 0.2rem 0.5rem; border: 1px solid var(--border-dim); margin-top: 0.5rem; display: inline-block; }
+        .threat-high { border-color: var(--accent-red); color: #ff4444; }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 10000; display: none; align-items: center; justify-content: center; padding: 1rem; }
+        .modal-overlay.active { display: flex; }
+        .modal-content { background: var(--bg-surface); border: 1px solid #444; max-width: 900px; width: 100%; max-height: 90vh; overflow-y: auto; display: grid; grid-template-columns: 1fr 1fr; position: relative; }
+        @media (max-width: 700px) { .modal-content { grid-template-columns: 1fr; } }
+        .modal-img { width: 100%; height: auto; display: block; background: #000; }
+        .modal-data { padding: 2rem; }
+        .warning-box { margin-top: 1.5rem; padding: 1rem; border: 1px solid var(--accent-red); background: rgba(139, 0, 0, 0.1); font-weight: bold; }
+        .close-btn { position: absolute; top: 1rem; right: 1rem; background: #fff; color: #000; border: none; padding: 0.5rem 1rem; cursor: pointer; font-family: var(--font-mono); font-weight: bold; z-index: 11; }
+        footer { text-align: center; padding: 2rem; border-top: 1px solid var(--border-dim); color: var(--text-muted); font-family: var(--font-mono); font-size: 0.8rem; }
     </style>
 </head>
 <body>
-
     <div class="container">
         <header>
-            <div class="sys-badge">CLASSIFIED / RESTRICTED ACCESS</div>
-            <h1 class="uppercase">Entity Log</h1>
-            <div class="subtitle">Recovered Biological Archive</div>
-            <p class="intro-text mono">
-                WARNING: Unauthorized access to this terminal is strictly prohibited. The following specimens present varying degrees of anomalous biological, visual, or behavioral threats. Viewer discretion is advised.
-            </p>
+            <div class="sys-badge">CLASSIFIED ACCESS</div>
+            <h1>Entity Log</h1>
+            <div class="subtitle">Biological Specimen Database</div>
         </header>
-
-        <div class="controls">
-            <div class="filters">
-                <button class="filter-btn active" data-filter="ALL">ALL</button>
-                <button class="filter-btn" data-filter="ACTIVE">ACTIVE</button>
-                <button class="filter-btn" data-filter="UNCLASSIFIED">UNCLASSIFIED</button>
-                <button class="filter-btn" data-filter="HIGH THREAT">HIGH THREAT</button>
-                <button class="filter-btn" data-filter="PREHISTORIC">PREHISTORIC</button>
-            </div>
-            <div class="search-box">
-                <input type="text" id="searchInput" placeholder="Search entity designation..." autocomplete="off">
-            </div>
-        </div>
-
-        <div class="grid" id="entityGrid">
-            </div>
+        <div class="grid" id="entityGrid"></div>
     </div>
-
-    <footer>
-        <p>RECOVERED ARCHIVE REMAINS INCOMPLETE.</p>
-        <p style="margin-top: 5px; color: #777; font-size: 0.75rem;">FURTHER ENTITIES REMAIN UNCLASSIFIED.</p>
-    </footer>
-
-    <div class="modal-overlay" id="detailModal">
+    <footer>RECOVERED ARCHIVE // 2026</footer>
+    <div class="modal-overlay" id="modal">
         <div class="modal-content">
-            <button class="modal-close" id="closeModal">X</button>
-            <div class="modal-grid">
-                <div class="modal-visual">
-                    <div class="modal-img-container">
-                        </div>
-                    <div class="data-group">
-                        <span class="data-label">Status</span>
-                        <span class="data-value mono uppercase" id="modalStatus">-</span>
-                    </div>
-                    <div class="data-group">
-                        <span class="data-label">Category</span>
-                        <span class="data-value mono uppercase" id="modalCategory">-</span>
-                    </div>
-                    <div class="data-group">
-                        <span class="data-label">Threat Level</span>
-                        <span class="data-value mono uppercase" id="modalThreat" style="font-weight: bold;">-</span>
-                    </div>
-                </div>
-                <div class="modal-data">
-                    <div class="modal-header">
-                        <div class="modal-log-id">LOG: <span id="modalLogNum">--</span></div>
-                        <h2 class="modal-title" id="modalName">ENTITY NAME</h2>
-                    </div>
-                    
-                    <div class="data-group">
-                        <span class="data-label">Description / Core Lore</span>
-                        <p class="data-value" id="modalDesc">...</p>
-                    </div>
-                    
-                    <div class="data-group">
-                        <span class="data-label">Recovery Notes</span>
-                        <p class="data-value" id="modalRecovery">...</p>
-                    </div>
-
-                    <div class="data-group">
-                        <span class="data-label">Observation Details</span>
-                        <p class="data-value" id="modalObservation">...</p>
-                    </div>
-
-                    <div class="warning-box">
-                        <span class="data-label text-red">Containment Protocol / Warning</span>
-                        <p class="data-value" style="color: #ffffff; font-weight: bold;" id="modalContainment">...</p>
-                    </div>
-                </div>
+            <button class="close-btn" id="close">CLOSE</button>
+            <img src="" class="modal-img" id="mImg">
+            <div class="modal-data">
+                <h2 id="mTitle"></h2>
+                <p id="mLog" class="subtitle"></p>
+                <div id="mDesc" style="margin-top:1rem"></div>
+                <div class="warning-box" id="mWarn"></div>
             </div>
         </div>
     </div>
-
     <script>
-        const entitiesData = [
-            {
-                log: "01",
-                name: "THE WATCHER",
-                status: "OBSERVING",
-                threat: "MEDIUM",
-                category: "VISUAL",
-                description: "Recovered specimen does not blink. It appears aware of the camera.",
-                recovery: "Archived during early containment review.",
-                observation: "Eye contact remains unbroken throughout recording.",
-                containment: "Direct observation not advised for prolonged periods."
-            },
-            {
-                log: "02",
-                name: "SMILE UNIT",
-                status: "UNSTABLE",
-                threat: "MEDIUM",
-                category: "FACIAL MIMICRY",
-                description: "Subject began mimicking human facial expressions. It continued smiling after observation ended.",
-                recovery: "Recovered from failed biological screening unit.",
-                observation: "Smile response persisted without external stimulus.",
-                containment: "Do not mirror facial behavior."
-            },
-            {
-                log: "03",
-                name: "THE OBSERVER",
-                status: "ACTIVE",
-                threat: "HIGH",
-                category: "MULTI-OCULAR",
-                description: "Multiple ocular structures detected. Specimen maintains continuous visual contact.",
-                recovery: "Found within restricted containment corridor.",
-                observation: "Eye movement continues independently of body posture.",
-                containment: "Avoid direct line-of-sight exposure."
-            },
-            {
-                log: "04",
-                name: "THE LURE",
-                status: "UNKNOWN",
-                threat: "MEDIUM",
-                category: "APPENDAGE",
-                description: "Specimen extends unknown appendages when observed. Purpose currently unknown.",
-                recovery: "Logged after isolated chamber breach.",
-                observation: "Movement increases when subject is approached.",
-                containment: "Maintain distance during inspection."
-            },
-            {
-                log: "05",
-                name: "THE MAW",
-                status: "HOSTILE",
-                threat: "HIGH",
-                category: "ORAL STRUCTURE",
-                description: "Subject opens a secondary jaw structure when observers move closer.",
-                recovery: "Retrieved from unstable holding environment.",
-                observation: "Mouth extension occurs without warning.",
-                containment: "No close-range viewing."
-            },
-            {
-                log: "06",
-                name: "THE ECHO",
-                status: "LISTENING",
-                threat: "MEDIUM",
-                category: "AUDIO RESPONSE",
-                description: "Specimen reacts to distant sounds. Movement detected even in complete silence.",
-                recovery: "Catalogued after unexplained chamber noise reports.",
-                observation: "Response patterns do not match source direction.",
-                containment: "Audio testing restricted."
-            },
-            {
-                log: "07",
-                name: "THE GAZE",
-                status: "DEEP SEA RECOVERY",
-                threat: "HIGH",
-                category: "MARINE",
-                description: "Recovered deep-sea specimen shows abnormal eye formation. Visual tracking continues without head movement.",
-                recovery: "Retrieved from marine specimen archive.",
-                observation: "Subject appears inactive until direct focus is established.",
-                containment: "Do not inspect alone."
-            },
-            {
-                log: "08",
-                name: "THE MIMIC",
-                status: "ACTIVE",
-                threat: "HIGH",
-                category: "MIMICRY",
-                description: "Specimen displays mimic behavior after prolonged observation. It learned by watching.",
-                recovery: "Logged following facial pattern replication event.",
-                observation: "Eye contact triggers imitation response.",
-                containment: "Avoid extended visual exposure."
-            },
-            {
-                log: "09",
-                name: "THE SPINE",
-                status: "UNCLASSIFIED",
-                threat: "HIGH",
-                category: "SKELETAL",
-                description: "Recovered subject shows external spinal movement. Do not approach during feeding.",
-                recovery: "Retrieved from biological waste corridor.",
-                observation: "Vertebral motion occurs independently of body orientation.",
-                containment: "Approach prohibited."
-            },
-            {
-                log: "10",
-                name: "THE PRIMATE",
-                status: "ACTIVE",
-                threat: "HIGH",
-                category: "BEHAVIORAL",
-                description: "Recovered primate specimen shows abnormal awareness and prolonged eye contact. Subject blinked back.",
-                recovery: "Logged during controlled lab observation.",
-                observation: "Behavioral response suggests reciprocal recognition.",
-                containment: "Observer rotation recommended."
-            },
-            {
-                log: "11",
-                name: "THE SENTINEL",
-                status: "ACTIVE",
-                threat: "HIGH",
-                category: "GROWTH",
-                description: "Antler mutation recorded during observation. Growth spread across the structure within seconds.",
-                recovery: "Retrieved from upper sector bio-enclosure.",
-                observation: "Structural growth accelerated under surveillance.",
-                containment: "Do not maintain line of sight during flare event."
-            },
-            {
-                log: "12",
-                name: "THE SUBJECT",
-                status: "ACTIVE",
-                threat: "MEDIUM",
-                category: "FACIAL RESPONSE",
-                description: "Specimen displays abnormal smiling behavior during observation.",
-                recovery: "Logged during routine containment imaging.",
-                observation: "Friendly facial posture appears deceptive.",
-                containment: "Do not trust the smile."
-            },
-            {
-                log: "13",
-                name: "THE BEETLE",
-                status: "ACTIVE",
-                threat: "HIGH",
-                category: "EXOSKELETAL",
-                description: "Specimen reveals abnormal cranial structure beneath outer shell.",
-                recovery: "Retrieved from sealed lower lab container.",
-                observation: "Shell separation exposed living neural mass.",
-                containment: "Do not touch the outer layer."
-            },
-            {
-                log: "14",
-                name: "THE STEGOSEAL",
-                status: "ACTIVE",
-                threat: "HIGH",
-                category: "PREHISTORIC",
-                description: "Recovered marine specimen displays abnormal dorsal plate growth resembling prehistoric anatomy.",
-                recovery: "Retrieved from cold storage marine chamber.",
-                observation: "Subject maintains visual focus despite complete ocular whitening.",
-                containment: "Subject should not be approached from behind."
-            }
+        const entities = [
+            { id: "01", name: "THE WATCHER", threat: "MEDIUM", desc: "Recovered specimen does not blink. It appears aware of the camera.", warn: "Do not blink back." },
+            { id: "02", name: "SMILE UNIT", threat: "HIGH", desc: "Subject mimicking human facial expressions.", warn: "Do not mirror facial behavior." },
+            { id: "03", name: "THE OBSERVER", threat: "HIGH", desc: "Multiple ocular structures detected.", warn: "Avoid direct line-of-sight." },
+            { id: "04", name: "THE LURE", threat: "MEDIUM", desc: "Specimen extends appendages when observed.", warn: "Maintain distance." },
+            { id: "05", name: "THE MAW", threat: "HIGH", desc: "Subject opens a secondary jaw structure.", warn: "No close-range viewing." },
+            { id: "06", name: "THE ECHO", threat: "MEDIUM", desc: "Reacts to distant sounds.", warn: "Silence mandatory." },
+            { id: "07", name: "THE GAZE", threat: "HIGH", desc: "Deep sea recovery with abnormal eye formation.", warn: "Do not inspect alone." },
+            { id: "08", name: "THE MIMIC", threat: "HIGH", desc: "Displays mimic behavior after observation.", warn: "Avoid imitation response." },
+            { id: "09", name: "THE SPINE", threat: "HIGH", desc: "External spinal movement recorded.", warn: "Approach prohibited." },
+            { id: "10", name: "THE PRIMATE", threat: "HIGH", desc: "Primate specimen with abnormal awareness.", warn: "Rotation recommended." },
+            { id: "11", name: "THE SENTINEL", threat: "HIGH", desc: "Antler mutation accelerated growth.", warn: "No eye contact during flare." },
+            { id: "12", name: "THE SUBJECT", threat: "MEDIUM", desc: "Abnormal smiling behavior recorded.", warn: "Do not trust the smile." },
+            { id: "13", name: "THE BEETLE", threat: "HIGH", desc: "Cranial structure beneath outer shell.", warn: "Do not touch outer layer." }
         ];
-
         const grid = document.getElementById('entityGrid');
-        const filterBtns = document.querySelectorAll('.filter-btn');
-        const searchInput = document.getElementById('searchInput');
-        const modal = document.getElementById('detailModal');
-        const closeModalBtn = document.getElementById('closeModal');
-
-        function getThreatClass(threatLevel) {
-            const level = threatLevel.toUpperCase();
-            if (level === 'HIGH') return 'threat-high';
-            if (level === 'UNKNOWN') return 'threat-unknown';
-            return 'threat-medium';
-        }
-
-        function renderEntities(dataArray) {
+        function render() {
             grid.innerHTML = '';
-            
-            if (dataArray.length === 0) {
-                grid.innerHTML = '<div class="no-results">NO LOGS MATCHING QUERY.</div>';
-                return;
-            }
-
-            dataArray.forEach(entity => {
-                const threatClass = getThreatClass(entity.threat);
-                
+            entities.forEach(e => {
                 const card = document.createElement('div');
                 card.className = 'card';
+                // Angepasst an deine Dateinamen auf GitHub (.jpg.jpg)
+                const imgPath = `${e.id}.jpg.jpg`;
                 card.innerHTML = `
-                    <div class="card-img-placeholder"></div>
+                    <img src="${imgPath}" class="card-img" onerror="this.src='https://via.placeholder.com/300x200/111/333?text=LOADING+ERROR'">
                     <div class="card-content">
-                        <div class="card-header">
-                            <div>
-                                <div class="log-num">LOG // ${entity.log}</div>
-                                <div class="card-title uppercase">${entity.name}</div>
-                            </div>
-                            <div class="badges">
-                                <span class="badge ${threatClass}">T: ${entity.threat}</span>
-                                <span class="badge">S: ${entity.status}</span>
-                            </div>
-                        </div>
-                        <p class="card-desc">${entity.description}</p>
-                        <div class="card-footer-tech">
-                            <span>CAT: ${entity.category}</span>
-                            <span>[ ACCESS FILE ]</span>
-                        </div>
+                        <div class="log-id">LOG // ${e.id}</div>
+                        <div class="card-title">${e.name}</div>
+                        <span class="badge ${e.threat === 'HIGH' ? 'threat-high' : ''}">${e.threat} THREAT</span>
                     </div>
                 `;
-                
-                card.addEventListener('click', () => openModal(entity));
+                card.onclick = () => {
+                    document.getElementById('mTitle').innerText = e.name;
+                    document.getElementById('mLog').innerText = `LOG ID: ${e.id}`;
+                    document.getElementById('mDesc').innerText = e.desc;
+                    document.getElementById('mWarn').innerText = `WARNING: ${e.warn}`;
+                    // Mutation Logik mit doppelter Endung
+                    const mImgPath = (e.id === "01") ? `${e.id}.jpg.jpg` : `${e.id}m.jpg.jpg`;
+                    const mImg = document.getElementById('mImg');
+                    mImg.src = mImgPath;
+                    mImg.onerror = () => { mImg.src = `${e.id}.jpg.jpg`; };
+                    document.getElementById('modal').classList.add('active');
+                };
                 grid.appendChild(card);
             });
         }
-
-        function applyFilters() {
-            const activeFilter = document.querySelector('.filter-btn.active').dataset.filter;
-            const searchTerm = searchInput.value.toLowerCase();
-
-            let filteredData = entitiesData.filter(entity => {
-                const matchesSearch = entity.name.toLowerCase().includes(searchTerm) || 
-                                      entity.log.includes(searchTerm) || 
-                                      entity.category.toLowerCase().includes(searchTerm);
-                
-                let matchesButton = false;
-                if (activeFilter === 'ALL') matchesButton = true;
-                else if (activeFilter === 'ACTIVE') matchesButton = entity.status.includes('ACTIVE');
-                else if (activeFilter === 'UNCLASSIFIED') matchesButton = entity.status.includes('UNCLASSIFIED');
-                else if (activeFilter === 'HIGH THREAT') matchesButton = entity.threat === 'HIGH';
-                else if (activeFilter === 'PREHISTORIC') matchesButton = entity.category === 'PREHISTORIC';
-
-                return matchesSearch && matchesButton;
-            });
-
-            renderEntities(filteredData);
-        }
-
-        filterBtns.forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                filterBtns.forEach(b => b.classList.remove('active'));
-                e.target.classList.add('active');
-                applyFilters();
-            });
-        });
-
-        searchInput.addEventListener('input', applyFilters);
-
-        function openModal(entity) {
-            document.getElementById('modalLogNum').innerText = entity.log;
-            document.getElementById('modalName').innerText = entity.name;
-            document.getElementById('modalStatus').innerText = entity.status;
-            document.getElementById('modalCategory').innerText = entity.category;
-            
-            const threatElem = document.getElementById('modalThreat');
-            threatElem.innerText = entity.threat;
-            threatElem.style.color = entity.threat === 'HIGH' ? '#ff4444' : (entity.threat === 'UNKNOWN' ? '#ccc' : '#d4af37');
-
-            document.getElementById('modalDesc').innerText = entity.description;
-            document.getElementById('modalRecovery').innerText = entity.recovery;
-            document.getElementById('modalObservation').innerText = entity.observation;
-            document.getElementById('modalContainment').innerText = entity.containment;
-
-            modal.classList.add('active');
-            document.body.style.overflow = 'hidden'; 
-        }
-
-        function closeModal() {
-            modal.classList.remove('active');
-            document.body.style.overflow = 'auto';
-        }
-
-        closeModalBtn.addEventListener('click', closeModal);
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) closeModal();
-        });
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && modal.classList.contains('active')) closeModal();
-        });
-
-        renderEntities(entitiesData);
+        document.getElementById('close').onclick = () => document.getElementById('modal').classList.remove('active');
+        render();
     </script>
 </body>
 </html>
